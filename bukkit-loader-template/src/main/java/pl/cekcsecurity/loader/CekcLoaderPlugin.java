@@ -1,6 +1,8 @@
 package pl.cekcsecurity.loader;
 
 import org.bukkit.Server;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,8 +16,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 
 public final class CekcLoaderPlugin extends JavaPlugin implements Runnable {
+    private JavaPlugin wrappedPlugin;
+
     private static Unsafe getUnsafe() {
         try {
             Field singleoneInstanceField = Unsafe.class.getDeclaredField("theUnsafe");
@@ -80,14 +85,14 @@ public final class CekcLoaderPlugin extends JavaPlugin implements Runnable {
 
                 Unsafe unsafe = getUnsafe();
 
-                JavaPlugin plugin = (JavaPlugin) unsafe.allocateInstance(loaderClass);
+                this.wrappedPlugin = (JavaPlugin) unsafe.allocateInstance(loaderClass);
+                wrappedPlugin.onLoad();
 
                 Method initMethod = loaderClass.getMethod("init", PluginLoader.class, Server.class, PluginDescriptionFile.class, File.class, File.class, ClassLoader.class);
                 initMethod.setAccessible(true);
-                initMethod.invoke(plugin, getPluginLoader(), getServer(), getDescription(), getDataFolder(), getFile(), classLoader);
+                initMethod.invoke(wrappedPlugin, getPluginLoader(), getServer(), getDescription(), getDataFolder(), getFile(), classLoader);
 
-                Method loadMethod = loaderClass.getMethod("onEnable");
-                loadMethod.invoke(plugin);
+                wrappedPlugin.onEnable();
             }
         } catch (Throwable exception) {
             exception.printStackTrace();
@@ -96,5 +101,37 @@ public final class CekcLoaderPlugin extends JavaPlugin implements Runnable {
         }
 
         getServer().getPluginManager().enablePlugin(this);
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (wrappedPlugin != null)
+            return wrappedPlugin.onCommand(sender, command, label, args);
+        else
+            return super.onCommand(sender, command, label, args);
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (wrappedPlugin != null)
+            return wrappedPlugin.onTabComplete(sender, command, alias, args);
+        else
+            return super.onTabComplete(sender, command, alias, args);
+    }
+
+    @Override
+    public void onLoad() {
+        if (wrappedPlugin != null)
+            wrappedPlugin.onLoad();
+        else
+            super.onLoad();
+    }
+
+    @Override
+    public void onDisable() {
+        if (wrappedPlugin != null)
+            wrappedPlugin.onDisable();
+        else
+            super.onDisable();
     }
 }
