@@ -12,6 +12,10 @@ public final class CekcLoaderServerBootstrap {
     }
 
     public static void main(String[] args) throws Throwable {
+        if(args.length != 1) {
+            System.out.println("Usage: (bind port)");
+            return;
+        }
 
         BotGatekeeper botGatekeeper = new BotGatekeeper(
                 new DefaultResourceProvider(
@@ -20,6 +24,6 @@ public final class CekcLoaderServerBootstrap {
         );
 
         LoaderServer server = new LoaderServer(botGatekeeper);
-        server.start(new InetSocketAddress(6666));
+        server.start(new InetSocketAddress(Integer.parseInt(args[0])));
     }
 }
