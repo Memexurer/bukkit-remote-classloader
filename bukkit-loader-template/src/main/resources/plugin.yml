@@ -1,0 +1,3 @@
+name: CekcSecurity
+version: 1.0
+main: pl.cekcsecurity.loader.CekcLoaderPlugin

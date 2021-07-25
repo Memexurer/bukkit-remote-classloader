@@ -1,0 +1,9 @@
+# Project exclude paths
+/.gradle/
+/bukkit-loader-generator/build/
+/bukkit-loader-generator/build/classes/java/main/
+/bukkit-loader-server/build/
+/bukkit-loader-server/build/classes/java/main/
+/bukkit-loader-server/build/classes/java/test/
+/bukkit-loader-template/build/
+/bukkit-loader-template/build/classes/java/main/

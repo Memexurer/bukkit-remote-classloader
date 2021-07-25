@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+version 'unspecified'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    implementation group: 'org.ow2.asm', name: 'asm', version: '9.2'
+    implementation group: 'org.ow2.asm', name: 'asm-tree', version: '9.2'
+}
+
+processResources {
+    def jarTask =  project(':bukkit-loader-template')
+            .getTasksByName("jar", true).first()
+
+    dependsOn jarTask
+    from jarTask.archivePath
+    rename { 'template.jar' }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'pl.cekcsecurity.packer.PackerBootstrap'
+    }
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
