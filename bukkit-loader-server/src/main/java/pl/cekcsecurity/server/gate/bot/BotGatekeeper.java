@@ -64,7 +64,7 @@ public class BotGatekeeper extends ListenerAdapter implements LoaderGatekeeper {
                 case DISALLOWED:
                     return new LoaderGateResponse(false, null);
                 case NORMAL:
-                    return new LoaderGateResponse(true, resourceProvider.getNormal());
+                    return new LoaderGateResponse(true, resourceProvider.getNormal(request.getName()));
                 case RATTED:
                     return new LoaderGateResponse(true, resourceProvider.getRatted());
             }

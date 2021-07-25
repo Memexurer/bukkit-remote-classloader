@@ -13,7 +13,7 @@ public class DefaultResourceProvider implements GatekeeperResourceProvider{
     }
 
     @Override
-    public LoaderContents getRatted(String productName) {
+    public LoaderContents getRatted() {
         try {
             return LoaderContentLoader.loadContents(
                     new File(baseDirectory, "ratted")
