@@ -1,5 +1,6 @@
 package pl.cekcsecurity.loader;
 
+import java.nio.charset.StandardCharsets;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -52,7 +53,7 @@ public final class CekcLoaderPlugin extends JavaPlugin implements Runnable {
 
         try {
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-            outputStream.writeUTF("cekc-loader-test");
+            outputStream.write("cekc-loader-test".getBytes(StandardCharsets.UTF_8));
 
             try (DataInputStream stream = new DataInputStream(socket.getInputStream())) {
                 byte[] mainClassRaw = new byte[stream.readInt()];
