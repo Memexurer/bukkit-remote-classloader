@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class CekcClassLoader extends ClassLoader {
     private final Map<String, byte[]> resourceMap = new HashMap<>();
+    private final Map<String, byte[]> classMap = new HashMap<>();
 
     protected CekcClassLoader(ClassLoader classLoader) {
         super(classLoader);
@@ -21,7 +22,18 @@ public class CekcClassLoader extends ClassLoader {
         return new ByteArrayInputStream(resourceMap.get(s));
     }
 
-    public void addClass(byte[] contents) {
-        defineClass(null, contents, 0, contents.length);
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+
+        byte[] classContents = classMap.get(name);
+        if(classContents == null)
+        {
+            throw new ClassNotFoundException(name);
+        }
+        return defineClass(name, classMap.get(name), 0, classContents.length);
+    }
+
+    public void addClass(String name, byte[] contents) {
+        classMap.put(name, contents);
     }
 }

@@ -64,10 +64,14 @@ public final class CekcLoaderPlugin extends JavaPlugin implements Runnable {
 
                 int classFileSize = stream.readInt();
                 for (int i = 0; i < classFileSize; i++) {
+                    byte[] classNameRaw = new byte[stream.readInt()];
+                    stream.readFully(classNameRaw);
+
+                    String className = new String(classNameRaw);
                     byte[] classContents = new byte[stream.readInt()];
                     stream.readFully(classContents);
 
-                    classLoader.addClass(classContents);
+                    classLoader.addClass(className, classContents);
                 }
 
                 int resourceFileSize = stream.readInt();

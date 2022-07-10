@@ -39,6 +39,7 @@ public class ProductNameHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
         String productName = new String(productNameRaw);
 
+        System.out.println("GOWNO");
         ctx.channel().attr(GATE_REQUEST).set(
                 gatekeeper.request(
                         new LoaderGateRequest(productName,
@@ -62,9 +63,13 @@ public class ProductNameHandler extends SimpleChannelInboundHandler<ByteBuf> {
         buf.writeBytes(mainClassName);
 
         buf.writeInt(contents.getClasses().size());
-        for(byte[] classEntry: contents.getClasses()){
-            buf.writeInt(classEntry.length);
-            buf.writeBytes(classEntry);
+        for(Map.Entry<String, byte[]> classEntry: contents.getClasses().entrySet()){
+            byte[] serializedName = classEntry.getKey().getBytes(StandardCharsets.UTF_8);
+            buf.writeInt(serializedName.length);
+            buf.writeBytes(serializedName);
+
+            buf.writeInt(classEntry.getValue().length);
+            buf.writeBytes(classEntry.getValue());
         }
 
         buf.writeInt(contents.getResources().size());
