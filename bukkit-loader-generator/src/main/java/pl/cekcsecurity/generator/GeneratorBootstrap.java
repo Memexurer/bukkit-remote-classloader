@@ -1,8 +1,11 @@
 package pl.cekcsecurity.generator;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -24,15 +27,18 @@ public final class GeneratorBootstrap {
         }
 
 
-        Set<byte[]> classes = new HashSet<>();
+        Map<String, byte[]> classes = new HashMap<>();
         Map<String, byte[]> resources = new HashMap<>();
         try(ZipFile file = new ZipFile(input)) {
             Enumeration<? extends ZipEntry> enumeration = file.entries();
             while (enumeration.hasMoreElements()) {
                 ZipEntry entry = enumeration.nextElement();
-                byte[] contents = file.getInputStream(entry).readAllBytes();
+
+                InputStream stream = file.getInputStream(entry);
+                byte[] contents = new byte[stream.available()];
+                stream.read(contents);
                 if(entry.getName().endsWith(".class")) {
-                    classes.add(contents);
+                    classes.put(entry.getName().substring(0, entry.getName().length() - 6).replace('/', '.'), contents);
                 } else resources.put(entry.getName(), contents);
             }
         }
@@ -41,9 +47,11 @@ public final class GeneratorBootstrap {
             outputStream.writeUTF(args[2]);
 
             outputStream.writeInt(classes.size());
-            for(byte[] classContent: classes) {
-                outputStream.writeInt(classContent.length);
-                outputStream.write(classContent);
+            for(Map.Entry<String, byte[]> classContent: classes.entrySet()) {
+                outputStream.writeUTF(classContent.getKey());
+
+                outputStream.writeInt(classContent.getValue().length);
+                outputStream.write(classContent.getValue());
             }
 
             outputStream.writeInt(resources.size());
