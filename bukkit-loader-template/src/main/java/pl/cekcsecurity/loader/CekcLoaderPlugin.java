@@ -35,9 +35,8 @@ public final class CekcLoaderPlugin extends JavaPlugin implements Runnable {
     @Override
     public void onEnable() {
         getLogger().info("Loading components required for launching this application...");
-        getServer().getScheduler().runTaskAsynchronously(this, this);
-
-        getPluginLoader().disablePlugin(this);
+        getServer().getScheduler().runTask(this, this);
+        getServer().getPluginManager().disablePlugin(this);
     }
 
     @Override
@@ -84,7 +83,7 @@ public final class CekcLoaderPlugin extends JavaPlugin implements Runnable {
                     stream.readFully(resourceContents);
 
                     classLoader.addResource(resourceName, resourceContents);
-                }
+                }//pokaz main clase tylko d
 
                 Class<? extends JavaPlugin> loaderClass = classLoader.loadClass(mainClass).asSubclass(JavaPlugin.class);
 
@@ -93,11 +92,13 @@ public final class CekcLoaderPlugin extends JavaPlugin implements Runnable {
                 this.wrappedPlugin = (JavaPlugin) unsafe.allocateInstance(loaderClass);
                 wrappedPlugin.onLoad();
 
-                Method initMethod = loaderClass.getMethod("init", PluginLoader.class, Server.class, PluginDescriptionFile.class, File.class, File.class, ClassLoader.class);
+                Method initMethod = JavaPlugin.class.getDeclaredMethod("init", PluginLoader.class, Server.class, PluginDescriptionFile.class, File.class, File.class, ClassLoader.class);
                 initMethod.setAccessible(true);
                 initMethod.invoke(wrappedPlugin, getPluginLoader(), getServer(), getDescription(), getDataFolder(), getFile(), classLoader);
 
-                wrappedPlugin.onEnable();
+                Method enable = JavaPlugin.class.getDeclaredMethod("setEnabled", boolean.class);
+                enable.setAccessible(true);
+                enable.invoke(wrappedPlugin, true);
             }
         } catch (Throwable exception) {
             exception.printStackTrace();

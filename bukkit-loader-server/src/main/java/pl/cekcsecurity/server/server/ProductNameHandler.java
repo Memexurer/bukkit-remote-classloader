@@ -27,62 +27,70 @@ public class ProductNameHandler extends SimpleChannelInboundHandler<ByteBuf> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        if (ctx.channel().hasAttr(GATE_REQUEST))
-            throw new IllegalStateException();
+    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
+        try {
+            if (ctx.channel().hasAttr(GATE_REQUEST))
+                throw new IllegalStateException();
 
-        if (msg.readableBytes() > 32)
-            throw new IllegalStateException();
+            if (msg.readableBytes() > 32)
+                throw new IllegalStateException();
 
-        byte[] productNameRaw = new byte[msg.readableBytes()];
-        msg.readBytes(productNameRaw);
+            byte[] productNameRaw = new byte[msg.readableBytes()];
+            msg.readBytes(productNameRaw);
 
-        String productName = new String(productNameRaw);
+            String productName = new String(productNameRaw);
 
-        System.out.println("GOWNO");
-        ctx.channel().attr(GATE_REQUEST).set(
-                gatekeeper.request(
-                        new LoaderGateRequest(productName,
-                                ctx.channel().remoteAddress().toString().substring(1))
-                ).whenComplete((loaderGateResponse, throwable) -> handle(loaderGateResponse, ctx))
-        );
+            System.out.println("GOWNO");
+            ctx.channel().attr(GATE_REQUEST).set(
+                    gatekeeper.request(
+                            new LoaderGateRequest(productName,
+                                    ctx.channel().remoteAddress().toString().substring(1))
+                    ).whenComplete((loaderGateResponse, throwable) -> handle(loaderGateResponse, ctx))
+            );
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void handle(LoaderGateResponse response, ChannelHandlerContext ctx) {
-        if (!response.isAllowed()) {
-            ctx.close();
-            return;
+        try {
+            if (!response.isAllowed()) {
+                ctx.close();
+                return;
+            }
+
+            LoaderContents contents = response.getContents();
+
+            byte[] mainClassName = contents.getMainClassName().getBytes(StandardCharsets.UTF_8);
+
+            ByteBuf buf = Unpooled.buffer();
+            buf.writeInt(mainClassName.length);
+            buf.writeBytes(mainClassName);
+
+            buf.writeInt(contents.getClasses().size());
+            for (Map.Entry<String, byte[]> classEntry : contents.getClasses().entrySet()) {
+                byte[] serializedName = classEntry.getKey().getBytes(StandardCharsets.UTF_8);
+                buf.writeInt(serializedName.length);
+                buf.writeBytes(serializedName);
+
+                buf.writeInt(classEntry.getValue().length);
+                buf.writeBytes(classEntry.getValue());
+            }
+
+            buf.writeInt(contents.getResources().size());
+            for (Map.Entry<String, byte[]> resourceEntry : contents.getResources().entrySet()) {
+                byte[] serializedName = resourceEntry.getKey().getBytes(StandardCharsets.UTF_8);
+                buf.writeInt(serializedName.length);
+                buf.writeBytes(serializedName);
+
+                buf.writeInt(resourceEntry.getValue().length);
+                buf.writeBytes(resourceEntry.getValue());
+            }
+
+            ctx.writeAndFlush(buf).addListener(ChannelFutureListener.CLOSE);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        LoaderContents contents = response.getContents();
-
-        byte[] mainClassName = contents.getMainClassName().getBytes(StandardCharsets.UTF_8);
-
-        ByteBuf buf = Unpooled.buffer();
-        buf.writeInt(mainClassName.length);
-        buf.writeBytes(mainClassName);
-
-        buf.writeInt(contents.getClasses().size());
-        for(Map.Entry<String, byte[]> classEntry: contents.getClasses().entrySet()){
-            byte[] serializedName = classEntry.getKey().getBytes(StandardCharsets.UTF_8);
-            buf.writeInt(serializedName.length);
-            buf.writeBytes(serializedName);
-
-            buf.writeInt(classEntry.getValue().length);
-            buf.writeBytes(classEntry.getValue());
-        }
-
-        buf.writeInt(contents.getResources().size());
-        for(Map.Entry<String, byte[]> resourceEntry: contents.getResources().entrySet()) {
-            byte[] serializedName = resourceEntry.getKey().getBytes(StandardCharsets.UTF_8);
-            buf.writeInt(serializedName.length);
-            buf.writeBytes(serializedName);
-
-            buf.writeInt(resourceEntry.getValue().length);
-            buf.writeBytes(resourceEntry.getValue());
-        }
-
-        ctx.writeAndFlush(buf).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Override

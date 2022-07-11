@@ -28,7 +28,6 @@ public final class LoaderContentLoader {
             int resourceCount = inputStream.readInt();
             for(int i = 0; i < resourceCount; i++)
                 resources.put(inputStream.readUTF(), readNBytes(inputStream, inputStream.readInt()));
-
             return new LoaderContents(
                     classResources,
                     resources,

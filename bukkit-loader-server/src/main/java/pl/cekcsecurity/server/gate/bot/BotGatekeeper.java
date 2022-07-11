@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class BotGatekeeper extends ListenerAdapter implements LoaderGatekeeper {
-    private static final String GATEKEEPER_CHANNEL_ID = "868523700545290281";
+    private static final String GATEKEEPER_CHANNEL_ID = "995691771440922686";
     private static final String GATEKEEPER_MESSAGE = "@everyon IJO IJO KTOS SIE CHCE POLACZYC!!!!!!!!\nREQUESTED PRODUKT: %s\nIP: %s";
-    private static final String GATEKEEPER_TOKEN = "ODE3MDkzODA5MzAwODMyMjc3.YEEf6Q.nzIHKBQa1qwfD6CI_9B74W1Cikw";
+    private static final String GATEKEEPER_TOKEN = "OTk1NjkxODg5NjQwNjE1OTY3.G7HOBM.eOE4kLsYUJWvf8YBjGyNdOC4s_TVgkCeWY630I";
     private static final String GATEKEEPER_MESSAGE_SUCCESS = "Request ukonczony!";
 
     private final JDA jda;

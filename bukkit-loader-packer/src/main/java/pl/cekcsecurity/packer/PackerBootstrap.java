@@ -6,7 +6,7 @@ public final class PackerBootstrap {
     private PackerBootstrap() {
     }
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) throws Throwable {//wez to utworz na nowo, ten plguin
         if (args.length != 4) {
             System.out.println("Uzycie: (output) (nazwa produktu) (ip serwera) (port serwera)");
             return;

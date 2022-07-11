@@ -29,7 +29,7 @@ public final class GeneratorBootstrap {
 
         Map<String, byte[]> classes = new HashMap<>();
         Map<String, byte[]> resources = new HashMap<>();
-        try(ZipFile file = new ZipFile(input)) {
+        try(ZipFile file = new ZipFile(input)) {//DXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDXDX 19 godzin temu
             Enumeration<? extends ZipEntry> enumeration = file.entries();
             while (enumeration.hasMoreElements()) {
                 ZipEntry entry = enumeration.nextElement();

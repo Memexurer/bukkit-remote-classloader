@@ -19,6 +19,7 @@ public class DefaultResourceProvider implements GatekeeperResourceProvider{
                     new File(baseDirectory, "ratted")
             );
         } catch (IOException exception) {
+            exception.printStackTrace();
             throw new RuntimeException(exception);
         }
     }
@@ -30,6 +31,7 @@ public class DefaultResourceProvider implements GatekeeperResourceProvider{
                     new File(baseDirectory, productName)
             );
         } catch (IOException exception) {
+            exception.printStackTrace();
             throw new RuntimeException(exception);
         }
     }

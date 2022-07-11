@@ -20,27 +20,29 @@ public class LoaderServer {
         this.gatekeeper = gatekeeper;
     }
 
-    public void start(InetSocketAddress bindAddress) throws InterruptedException {
+    public void start(InetSocketAddress bindAddress){
         EventLoopGroup group = new NioEventLoopGroup();
+        try {
+            try {
+                ServerBootstrap serverBootstrap = new ServerBootstrap();
+                serverBootstrap.group(group);
+                serverBootstrap.channel(NioServerSocketChannel.class);
+                serverBootstrap.localAddress(bindAddress);
 
-        try{
-            ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.group(group);
-            serverBootstrap.channel(NioServerSocketChannel.class);
-            serverBootstrap.localAddress(bindAddress);
-
-            serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
-                protected void initChannel(SocketChannel socketChannel) throws Exception {
-                    System.out.println("██▅▇██▇▆▅▄▄▄▇");
-                    socketChannel.pipeline().addLast(new ProductNameHandler(gatekeeper), new ReadTimeoutHandler(1, TimeUnit.MINUTES));
-                }
-            });
-            System.out.println("Binding Xddd");
-            ChannelFuture channelFuture = serverBootstrap.bind().sync();
-            channelFuture.channel().closeFuture().sync();
-        } finally {
-            group.shutdownGracefully().sync();
+                serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        System.out.println("b");
+                        socketChannel.pipeline().addLast(new ProductNameHandler(gatekeeper), new ReadTimeoutHandler(1, TimeUnit.MINUTES));
+                    }
+                });
+                System.out.println("Binding Xddd");
+                ChannelFuture channelFuture = serverBootstrap.bind().sync();
+                channelFuture.channel().closeFuture().sync();
+            } finally {
+                group.shutdownGracefully().sync();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
-
     }
 }
